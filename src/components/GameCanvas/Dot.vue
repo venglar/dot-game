@@ -11,7 +11,6 @@
         data() {
             return {
                 offsetX: 0,
-                timer: null,
                 clicked: false
             }
         },
@@ -21,21 +20,6 @@
             // this would also allow the top bar to responsively resize for mobile
             const headerHeight = document.getElementById('header').clientHeight
             this.offsetX = (-window.innerHeight) + headerHeight
-
-            // setInterval can't easily be adjusted after it's set, and CSS timing adjustment causes jumping in Chrome
-            // so we use a timeout loop (also remove old dots as they move off the screen to save memory)
-            this.timer = () => {
-                if(this.canMove){
-                    if (this.offsetX > parseInt(this.diameter)){
-                        this.$store.commit('miss');
-                        this.$store.commit('removeDot', this.$props.id)
-                    } else if (this.offsetX < this.offsetMax) {
-                        this.offsetX += 1;
-                        this.move()
-                    }
-                }
-            }
-
             this.move()
         },
         computed: {
@@ -86,6 +70,19 @@
                 setTimeout(() => {
                     this.$store.commit('addDot')
                 }, 1000)
+            },
+            timer() {
+                // setInterval can't easily be adjusted after it's set, and CSS timing adjustment causes jumping in Chrome
+                // so we use a timeout loop (also remove old dots as they move off the screen to save memory)
+                if(this.canMove){
+                    if (this.offsetX > parseInt(this.diameter)){
+                        this.$store.commit('miss');
+                        this.$store.commit('removeDot', this.$props.id)
+                    } else if (this.offsetX < this.offsetMax) {
+                        this.offsetX += 1;
+                        this.move()
+                    }
+                }
             },
             move() {
                 setTimeout(this.timer, (this.offsetMax / this.$store.state.speed))
